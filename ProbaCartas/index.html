@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Constructor de Probabilidad</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <header>
+    <h1>🎴 Calculadora de Probabilidad con Cartas</h1>
+    <div class="instructions">
+      Arrastra los bloques desde el banco de palabras para completar la oración.<br>
+      Sigue la estructura:<br>
+      <b>Probabilidad de [condición] [número] [tipo/color] al sacar [número] cartas con/sin reemplazo.</b>
+      <p>*Nota: únicamente soporta hasta 6 dígitos en los decimales.</p>
+    </div>
+  </header>
+
+  <main>
+    <!-- BANCO DE BLOQUES -->
+    <div class="blocks">
+      <h3>Banco de palabras</h3>
+      <div id="wordbank"></div>
+    </div>
+
+    <!-- CONSTRUCTOR + RESULTADO -->
+    <div class="builder">
+
+      <h3>Construye la oración</h3>
+
+      <div id="sentence">
+        Probabilidad de sacar
+        <span class="slot" data-type="Condición"></span>
+        <span class="slot" data-type="Número de cartas"></span>
+        <span class="slot optional" data-type="Tipo de cartas"></span>
+        <span class="slot optional" data-type="Color de cartas"></span>
+        al tomar
+        <span class="slot" data-type="Número de cartas sacadas"></span>
+        cartas
+        <span class="slot" data-type="Reemplazo"></span>
+      </div>
+
+      <button onclick="procesar()">Calcular</button>
+
+      <h3>Vista previa</h3>
+      <div id="preview">Aquí se verá la oración construida</div>
+
+      <h3>Resultado</h3>
+      <div id="resultado">Aquí se mostrará la probabilidad</div>
+
+    </div>
+  </main>
+
+  <script src="wordbank.js"></script>
+  <script src="probability.js"></script>
+  <script src="app.js"></script>
+
+</body>
+
+</html>

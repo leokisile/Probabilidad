@@ -1,0 +1,131 @@
+body{
+  font-family: "Segoe UI", sans-serif;
+  margin:0;
+  background:linear-gradient(135deg,#1e3c72,#2a5298);
+  color:white;
+}
+
+header{
+  text-align:center;
+  padding:20px;
+  background:rgba(0,0,0,0.25);
+  box-shadow:0 3px 10px rgba(0,0,0,.3);
+}
+
+h1{
+  margin:0;
+  font-size:28px;
+}
+
+.instructions{
+  margin-top:10px;
+  font-size:14px;
+  opacity:.9;
+}
+
+main{
+  display:flex;
+  gap:20px;
+  padding:20px;
+}
+
+/* ===== BANCO DE BLOQUES ===== */
+
+.blocks{
+  width:35%;
+  background:rgba(255,255,255,.1);
+  padding:15px;
+  border-radius:12px;
+  overflow-y:auto;
+}
+
+#wordbank h4{
+  margin:10px 0 5px;
+  border-bottom:1px solid rgba(255,255,255,.3);
+}
+
+.block{
+  display:inline-block;
+  padding:8px 12px;
+  margin:5px;
+  border-radius:10px;
+  cursor:grab;
+  font-weight:bold;
+  transition:.2s;
+}
+
+.block:hover{
+  transform:scale(1.08);
+}
+
+.block:nth-child(odd){
+  background:#ffb703;
+  color:black;
+}
+
+.block:nth-child(even){
+  background:#8ecae6;
+  color:black;
+}
+
+/* ===== PANEL DE CONSTRUCCIÓN ===== */
+
+.builder{
+  flex:1;
+  background:rgba(255,255,255,.15);
+  border-radius:12px;
+  padding:20px;
+}
+
+/* ===== SLOTS CON LÍNEA ===== */
+
+.slot{
+  border-bottom:3px solid #fff;
+  min-width:80px;
+  display:inline-block;
+  margin:5px;
+  padding:5px;
+  text-align:center;
+}
+
+.slot.optional{
+  border-bottom:2px dashed #fff;
+}
+
+.slot.hover{
+  background:rgba(255,255,255,0.3);
+}
+
+.slot.filled{
+  background:rgba(255,255,255,0.6);
+  color:black;
+}
+
+/* ===== BOTÓN ===== */
+
+button{
+  margin-top:15px;
+  padding:12px 18px;
+  border:none;
+  border-radius:10px;
+  background:#ef476f;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+  transition:.2s;
+}
+
+button:hover{
+  background:#ff5d8f;
+}
+
+/* ===== RESULTADO ===== */
+
+#preview, #resultado{
+  margin-top:15px;
+  font-size:16px;
+  font-weight:bold;
+  background:rgba(0,0,0,.25);
+  padding:10px;
+  border-radius:8px;
+}
