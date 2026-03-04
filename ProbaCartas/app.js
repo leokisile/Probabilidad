@@ -4,32 +4,75 @@
 
 const slots = document.querySelectorAll(".slot");
 
-/* ===========================
-   DRAG & DROP CON SNAP
-=========================== */
-slots.forEach(slot => {
-  slot.addEventListener("dragover", e => {
-    e.preventDefault();
-    const tipo = e.dataTransfer.getData("type");
-    if (slot.dataset.type === tipo) slot.classList.add("hover");
+// ============================
+// DRAG & DROP MULTIPLATAFORMA
+// ============================
+
+let elementoArrastrado = null;
+
+// --- DESKTOP ---
+document.querySelectorAll(".block").forEach(block => {
+
+  block.addEventListener("dragstart", e => {
+    elementoArrastrado = block;
+    e.dataTransfer.setData("text", block.innerText);
+    e.dataTransfer.setData("type", block.dataset.type);
   });
 
-  slot.addEventListener("dragleave", () => { slot.classList.remove("hover"); });
+});
+
+// --- MOBILE (TOUCH) ---
+document.querySelectorAll(".block").forEach(block => {
+
+  block.addEventListener("touchstart", e => {
+    elementoArrastrado = block;
+    block.classList.add("dragging");
+  });
+
+});
+
+// --- SLOTS ---
+document.querySelectorAll(".slot").forEach(slot => {
+
+  // DESKTOP
+  slot.addEventListener("dragover", e => {
+    e.preventDefault();
+  });
 
   slot.addEventListener("drop", e => {
     e.preventDefault();
-    const word = e.dataTransfer.getData("text");
-    const tipo = e.dataTransfer.getData("type");
-    if (slot.dataset.type !== tipo) return;
-
-    slot.innerText = word;
-    slot.classList.add("filled");
-    slot.classList.remove("hover");
-
-    console.log(`[DEBUG] Slot rellenado: ${tipo} -> ${word}`);
-    actualizarPreview();
+    colocarEnSlot(slot);
   });
+
+  // MOBILE
+  slot.addEventListener("touchend", e => {
+    colocarEnSlot(slot);
+  });
+
 });
+
+// ============================
+// FUNCIÓN CENTRAL
+// ============================
+
+function colocarEnSlot(slot) {
+
+  if (!elementoArrastrado) return;
+
+  const tipoBloque = elementoArrastrado.dataset.type;
+
+  if (slot.dataset.type !== tipoBloque) return;
+
+  slot.innerText = elementoArrastrado.innerText;
+  slot.classList.add("filled");
+
+  console.log("[DEBUG] Colocado:", elementoArrastrado.innerText);
+
+  elementoArrastrado.classList.remove("dragging");
+  elementoArrastrado = null;
+
+  actualizarPreview();
+}
 
 /* ===========================
    FUNCIONES AUXILIARES
@@ -146,9 +189,41 @@ function procesar() {
   if (reemplazo === "sin reemplazo") {
     prob = calcularProbabilidad({ N, K, n, k, condicion });
   } else {
+
     const p = K / N;
-    prob = combinacion(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
-    console.log(`[DEBUG] Probabilidad calculada (con reemplazo): ${prob}`);
+    prob = 0;
+
+    if (condicion === "exactamente") {
+
+      prob = combinacion(n, k) *
+        Math.pow(p, k) *
+        Math.pow(1 - p, n - k);
+
+    }
+
+    else if (condicion === "como máximo") {
+
+      for (let i = 0; i <= k; i++) {
+        prob += combinacion(n, i) *
+          Math.pow(p, i) *
+          Math.pow(1 - p, n - i);
+      }
+
+    }
+
+    else if (condicion === "al menos") {
+
+      for (let i = k; i <= n; i++) {
+        prob += combinacion(n, i) *
+          Math.pow(p, i) *
+          Math.pow(1 - p, n - i);
+      }
+
+      // Alternativa más eficiente:
+      // prob = 1 - sumatoria hasta k-1
+    }
+
+    console.log(`[DEBUG] Probabilidad binomial: ${prob}`);
   }
 
   document.getElementById("resultado").innerHTML = `<h2>Probabilidad: ${prob.toFixed(6)}</h2>`;
