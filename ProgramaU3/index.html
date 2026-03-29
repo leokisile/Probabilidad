@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Hospital - Poisson</title>
+
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<header>
+    <h1>Dashboard de Emergencias</h1>
+</header>
+
+<section class="controls">
+    <label>λ:
+        <input type="range" id="lambda" min="1" max="15" value="5">
+    </label>
+
+    <label>Capacidad:
+        <input type="number" id="capacidad" value="10">
+    </label>
+
+    <label>Umbral:
+        <input type="number" id="umbral" value="10">
+    </label>
+
+    <button id="btnSimular">Simular</button>
+    <button id="btnHist">Histograma</button>
+</section>
+
+<section class="dashboard">
+
+    <div class="card">
+        <h3>Simulación</h3>
+        <div id="hospital"></div>
+    </div>
+
+    <div class="card">
+        <h3>Probabilidad</h3>
+        <p id="resultado"></p>
+        <canvas id="prob"></canvas>
+    </div>
+
+    <div class="card">
+        <h3>Histograma</h3>
+        <canvas id="histograma"></canvas>
+    </div>
+
+    <div class="card">
+        <h3>Comparación</h3>
+        <canvas id="comparacion"></canvas>
+    </div>
+
+</section>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
