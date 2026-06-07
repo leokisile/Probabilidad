@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistical Learning Lab</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <h1>🧪 Statistical Learning Lab</h1>
+            <p>Simulador interactivo de inferencia, muestreo y Teorema del Límite Central</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <div class="control-group">
+                <label for="csvFile">📂 Cargar Dataset (CSV)</label>
+                <input type="file" id="csvFile" accept=".csv">
+            </div>
+
+            <div class="control-group">
+                <label for="variableSelect">📊 Variable Principal</label>
+                <select id="variableSelect" disabled>
+                    <option value="">Cargue un archivo primero</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="analysisType">⚡ Tipo de Análisis</label>
+                <select id="analysisType">
+                    <option value="descriptive">Estadística Descriptiva</option>
+                    <option value="sampling">Muestreo (Simple / Bootstrap)</option>
+                    <option value="distMean">Dist. Muestral - Medias (CLT)</option>
+                    <option value="distProp">Dist. Muestral - Proporciones</option>
+                    <option value="proportion">Proporciones y Frecuencias</option>
+                    <option value="zMean">Z-Test (Media)</option>
+                    <option value="zProp">Z-Test (Proporción)</option>
+                    <option value="correlation">Correlación de Pearson</option>
+                </select>
+            </div>
+
+            <hr class="separator">
+
+            <h3>⚙️ Parámetros del Laboratorio</h3>
+
+            <div class="control-group">
+                <label for="sampleSize">Tamaño de Muestra (n)</label>
+                <input type="number" id="sampleSize" value="30" min="2">
+            </div>
+
+            <div class="control-group">
+                <label for="iterations">Iteraciones de Simulación</label>
+                <input type="number" id="iterations" value="500" min="1">
+            </div>
+
+            <div class="control-group">
+                <label for="categoryValue">🎯 Valor Categoría / Éxito <span class="optional">(Opcional)</span></label>
+                <input type="text" id="categoryValue" placeholder="Ej: 'Sí', 1, o dejar vacío">
+            </div>
+
+            <button id="runBtn" class="btn-primary">Ejecutar Experimento</button>
+        </aside>
+
+        <main class="main-content">
+            <section class="results-container">
+                <div class="panel-header">
+                    <h2>🔬 Resultados del Experimento</h2>
+                </div>
+                
+                <div id="output" class="stats-grid">
+                    <div class="placeholder-text">Sube un archivo CSV y haz clic en "Ejecutar Experimento" para ver el análisis de datos.</div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="chartCanvas"></canvas>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/csvLoader.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/statistics.js"></script>
+    <script src="js/sampling.js"></script>
+    <script src="js/distributions.js"></script>
+    <script src="js/proportions.js"></script>
+    <script src="js/hypothesis.js"></script>
+    <script src="js/correlation.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
