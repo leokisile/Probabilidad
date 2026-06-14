@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
     <header>
@@ -26,6 +28,13 @@
             <div class="control-group">
                 <label for="variableSelect">📊 Variable Principal</label>
                 <select id="variableSelect" disabled>
+                    <option value="">Cargue un archivo primero</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="variableSelect2">📊 Variable Secundaria (Y)</label>
+                <select id="variableSelect2" disabled>
                     <option value="">Cargue un archivo primero</option>
                 </select>
             </div>
@@ -59,6 +68,11 @@
             </div>
 
             <div class="control-group">
+                <label for="muNullInput">Hypothesis Mu (μ₀) / P₀</label>
+                <input type="number" id="muNullInput" value="0" step="any">
+            </div>
+
+            <div class="control-group">
                 <label for="categoryValue">🎯 Valor Categoría / Éxito <span class="optional">(Opcional)</span></label>
                 <input type="text" id="categoryValue" placeholder="Ej: 'Sí', 1, o dejar vacío">
             </div>
@@ -71,9 +85,10 @@
                 <div class="panel-header">
                     <h2>🔬 Resultados del Experimento</h2>
                 </div>
-                
+
                 <div id="output" class="stats-grid">
-                    <div class="placeholder-text">Sube un archivo CSV y haz clic en "Ejecutar Experimento" para ver el análisis de datos.</div>
+                    <div class="placeholder-text">Sube un archivo CSV y haz clic en "Ejecutar Experimento" para ver el
+                        análisis de datos.</div>
                 </div>
 
                 <div class="chart-wrapper">
@@ -94,4 +109,5 @@
     <script src="js/charts.js"></script>
     <script src="js/app.js"></script>
 </body>
+
 </html>

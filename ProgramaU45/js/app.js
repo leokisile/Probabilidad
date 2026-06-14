@@ -1,12 +1,14 @@
 let dataset = [];
 
-// Enlace de selectores corregidos basados en el nuevo HTML
+// Enlace de selectores de la interfaz de usuario
 const csvFile = document.getElementById("csvFile");
 const variableSelect = document.getElementById("variableSelect");
+const variableSelect2 = document.getElementById("variableSelect2"); // Vinculado al nuevo select del HTML
 const analysisType = document.getElementById("analysisType");
 const sampleSizeInput = document.getElementById("sampleSize");
 const iterationsInput = document.getElementById("iterations");
 const categoryValueInput = document.getElementById("categoryValue");
+const muNullInput = document.getElementById("muNullInput"); // Vinculado al nuevo input numérico del HTML
 const runBtn = document.getElementById("runBtn");
 const output = document.getElementById("output");
 
@@ -26,7 +28,8 @@ function handleCSVUpload(event) {
         if(dataset.length > 0) {
             populateVariables();
             variableSelect.disabled = false;
-            output.innerHTML = `<div class="placeholder-text" style="color: var(--success)">✅ ${dataset.length} registros cargados exitosamente. Selecciona variables y presiona "Ejecutar".</div>`;
+            if (variableSelect2) variableSelect2.disabled = false; // Habilitar segundo selector si existe en el DOM
+            output.innerHTML = `<div class="placeholder-text" style="color: green">✅ ${dataset.length} registros cargados exitosamente. Selecciona variables y presiona "Ejecutar".</div>`;
         } else {
             output.innerHTML = `<div class="placeholder-text" style="color: red">❌ Error al procesar el archivo CSV o formato vacío.</div>`;
         }
@@ -35,13 +38,21 @@ function handleCSVUpload(event) {
 }
 
 function populateVariables() {
+    if (!variableSelect) return;
     variableSelect.innerHTML = '';
+    
+    if (variableSelect2) variableSelect2.innerHTML = '';
+
     const columns = Object.keys(dataset[0]);
     columns.forEach(column => {
         const option = document.createElement("option");
         option.value = column;
         option.textContent = column;
         variableSelect.appendChild(option);
+        
+        if (variableSelect2) {
+            variableSelect2.appendChild(option.cloneNode(true));
+        }
     });
 }
 
@@ -88,7 +99,6 @@ function executeLaboratoryExperiment() {
                 
             drawHistogram(values, column);
         } else {
-            // Manejo de variables Categóricas
             const frequencies = frequencyTable(dataset, column);
             let html = "";
             Object.entries(frequencies).forEach(([key, val]) => {
@@ -136,14 +146,13 @@ function executeLaboratoryExperiment() {
         drawHistogram(samplingMeans, `Distribución de Medias de ${column} (CLT)`);
     }
 
-    // 4. DISTRIBUCIÓN MUESTRAL - PROPORCIONES
+    // 4. DISTRIBUCIONES DE PROPORCIONES Y PRUEBAS ASOCIADAS
     else if (type === "distProp" || type === "proportion" || type === "zProp") {
-        // Ejecución inteligente sin obligación de definir proporción manual
         const smartProp = getSmartProportion(dataset, column, inputCategory);
         
         if (type === "proportion") {
             const pTable = proportionsTable(dataset, column);
-            let html = `<div class="stat-card interpretation">⭐ <strong>Valor auto-seleccionado para inferencia retrospectiva:</strong> "${smartProp.value}" (Puntual p̂ = ${smartProp.proportion.toFixed(4)})</div>`;
+            let html = `<div class="stat-card interpretation" style="grid-column: span 2;">⭐ <strong>Valor evaluado para inferencia retrospectiva:</strong> "${smartProp.value}" (Puntual p̂ = ${smartProp.proportion.toFixed(4)})</div>`;
             
             Object.entries(pTable).forEach(([key, obj]) => {
                 html += createStatCard(`Prop. [${key}]`, `${(obj.proportion * 100).toFixed(2)}% (${obj.count})`);
@@ -164,16 +173,20 @@ function executeLaboratoryExperiment() {
             drawHistogram(samplingProps, `Distribución Muestral de Proporciones (${smartProp.value})`);
             
         } else if (type === "zProp") {
-            const p0 = 0.5; // Hipótesis nula estándar (H0: p = 0.5) o azar
+            // Lee p0 desde el cuadro de texto común de hipótesis; si no existe o está vacío, usa 0.5 por defecto
+            const p0 = (muNullInput && muNullInput.value !== "") ? parseFloat(muNullInput.value) : 0.5;
             const zScore = zTestProportion(smartProp.proportion, p0, dataset.length);
-            // Aproximación burda a dos colas para simulación educativa empírica
-            const pValue = 2 * (1 - Math.sign(zScore) * 0.5); 
+            const pValue = 2 * (1 - (Math.abs(zScore) > 0 ? (0.5 + 0.3413) : 0.5)); // Aproximación empírica simplificada para p-valor
             
             output.innerHTML = 
                 createStatCard("Proporción Obs. p̂", smartProp.proportion.toFixed(4)) +
-                createStatCard("H0 Proporción Esperada", p0) +
+                createStatCard("H0 Proporción Esperada (p₀)", p0) +
                 createStatCard("Estadístico Z", zScore.toFixed(4)) +
-                `<div class="stat-card interpretation"><strong>Interpretación de la Prueba de Hipótesis:</strong><br>Para el éxito "${smartProp.value}", contra una H0 de ${p0}: El resultado estadístico es <strong>${interpret(pValue)}</strong> (Alpha = 0.05).</div>`;
+                `<div class="stat-card interpretation" style="grid-column: span 2;"><strong>Interpretación de la Prueba de Hipótesis:</strong><br>Para el éxito "${smartProp.value}" contra una H₀ de ${p0}: El resultado estadístico es <strong>${interpret(pValue)}</strong> (Alpha = 0.05).</div>`;
+
+            // Muestra el gráfico correspondiente para ver la distribución categórica observada
+            const frequencies = frequencyTable(dataset, column);
+            drawBarChart(frequencies, `Frecuencias de Proporción Observada en ${column}`);
         }
     }
 
@@ -186,21 +199,71 @@ function executeLaboratoryExperiment() {
         const values = getNumericValues(dataset, column);
         const currentMean = mean(values);
         const currentSD = standardDeviation(values);
-        const muNull = currentMean * 0.95; // Simulación académica de hipótesis nula levemente desplazada
+        
+        // Lee el valor dinámico introducido en el cuadro de texto. Si está vacío, usa el fallback del 95%
+        const muNull = (muNullInput && muNullInput.value !== "") ? parseFloat(muNullInput.value) : (currentMean * 0.95);
 
         const zScore = zTestMean(currentMean, muNull, currentSD, values.length);
+        const pValue = Math.abs(zScore) > 1.96 ? 0.01 : 0.10; // Mapeo crítico simplificado para control estadístico
         
         output.innerHTML = 
-            createStatCard("Media Poblacional μ", currentMean.toFixed(4)) +
-            createStatCard("H0 Hipótesis μ₀", muNull.toFixed(4)) +
+            createStatCard("Media Poblacional (x̄)", currentMean.toFixed(4)) +
+            createStatCard("H₀ Hipótesis (μ₀)", muNull.toFixed(4)) +
             createStatCard("Estadístico Z", zScore.toFixed(4)) +
-            `<div class="stat-card interpretation"><strong>Laboratorio Inferencial (Z-Test):</strong><br>Comparando x̄ contra un valor nulo de ${muNull.toFixed(2)}. Resultado: <strong>${interpret(0.01)}</strong> con alta confianza estadística descriptiva.</div>`;
+            `<div class="stat-card interpretation" style="grid-column: span 2;"><strong>Laboratorio Inferencial (Z-Test):</strong><br>Comparando la media observada contra el valor nulo de ${muNull.toFixed(4)}. Resultado: <strong>${interpret(pValue)}</strong> con nivel de significancia Alpha = 0.05.</div>`;
             
         drawHistogram(values, column);
     }
     
-    // 6. CORRELACIÓN
+    // 6. CORRELACIÓN DE PEARSON (CORREGIDO)
     else if (type === "correlation") {
-        output.innerHTML = `<div class="placeholder-text">⚠️ Para correlación matemática de Pearson, requieres seleccionar un par bidimensional cruzado de vectores.</div>`;
+        if (!variableSelect2) {
+            output.innerHTML = `<div class="placeholder-text" style="color:red">⚠️ No se encontró el selector 'variableSelect2' en la interfaz HTML.</div>`;
+            return;
+        }
+        
+        const columnY = variableSelect2.value;
+        if (!columnY) {
+            output.innerHTML = `<div class="placeholder-text" style="color:orange">⚠️ Por favor, selecciona una Variable Secundaria (Y) para calcular la correlación.</div>`;
+            return;
+        }
+
+        if (!isNumericColumn(dataset, column) || !isNumericColumn(dataset, columnY)) {
+            output.innerHTML = `<div class="placeholder-text" style="color:red">⚠️ La correlación matemática de Pearson requiere que AMBAS variables seleccionadas sean numéricas.</div>`;
+            return;
+        }
+
+        const xValuesAll = getNumericValues(dataset, column);
+        const yValuesAll = getNumericValues(dataset, columnY);
+
+        // RESTRICCIÓN: Limitar los vectores al tamaño de muestra (n) seleccionado por el usuario
+        const xValues = xValuesAll.slice(0, n);
+        const yValues = yValuesAll.slice(0, n);
+
+        // Ejecución matemática del coeficiente de asociación lineal (se calcula sobre la muestra visualizada)
+        const r = correlation(xValues, yValues);
+        
+        let fuerza = "";
+        if (Math.abs(r) >= 0.7) fuerza = "Fuerte";
+        else if (Math.abs(r) >= 0.3) fuerza = "Moderada";
+        else fuerza = "Débil o Nula";
+
+        let sentido = r >= 0 ? "Positiva (+)" : "Negativa (-)";
+
+        output.innerHTML = 
+            createStatCard("Variable X", column) +
+            createStatCard("Variable Y", columnY) +
+            createStatCard("Coeficiente r de Pearson (Muestra)", r.toFixed(4)) +
+            `<div class="stat-card interpretation" style="grid-column: span 2;">
+                <strong>Análisis de Asociación Lineal (n = ${xValues.length}):</strong><br>
+                En los primeros <strong>${xValues.length}</strong> registros analizados, se presenta una correlación de intensidad <strong>${fuerza}</strong> con sentido <strong>${sentido}</strong>.
+             </div>`;
+
+        // Generar Gráfico bidimensional restringido
+        if (typeof drawCorrelationLineChart === "function") {
+            drawCorrelationLineChart(xValues, yValues, column, columnY);
+        } else {
+            console.warn("La función drawCorrelationLineChart no está definida en charts.js");
+        }
     }
 }

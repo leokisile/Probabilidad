@@ -26,3 +26,26 @@ function getSmartProportion(data, column, targetValue = "") {
         proportion: count / total
     };
 }
+
+// Agrega esto en statistics.js o proportions.js
+function proportion(data, column, value) {
+    const total = data.length;
+    if (total === 0) return 0;
+    const count = data.filter(row => String(row[column]) === String(value)).length;
+    return count / total;
+}
+
+// Agrega esto en proportions.js
+function proportionsTable(data, column) {
+    const freq = frequencyTable(data, column);
+    const total = data.length;
+    const table = {};
+    
+    for (const [key, count] of Object.entries(freq)) {
+        table[key] = {
+            count: count,
+            proportion: count / total
+        };
+    }
+    return table;
+}
